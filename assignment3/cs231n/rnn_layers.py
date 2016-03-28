@@ -180,6 +180,12 @@ def word_embedding_forward(x, W):
   - cache: Values needed for the backward pass
   """
   out, cache = None, None
+  N,T = x.shape
+  V,D = W.shape
+  out = np.zeros((N,T,D))
+  for n in range(0,N):
+      for t in range(0,T):
+          out[n,t,:] = W[x[n,t]]
   ##############################################################################
   # TODO: Implement the forward pass for word embeddings.                      #
   #                                                                            #
@@ -189,6 +195,7 @@ def word_embedding_forward(x, W):
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
+  cache = x,W
   return out, cache
 
 
@@ -207,7 +214,15 @@ def word_embedding_backward(dout, cache):
   Returns:
   - dW: Gradient of word embedding matrix, of shape (V, D).
   """
-  dW = None
+  x,W = cache
+  V,D = W.shape
+  N,T,D = dout.shape
+  dW = np.zeros((V,D))
+  for n in range(0,N):
+      for t in range(0,T):
+          index = x[n,t]
+          np.add.at(dW, index, dout[n,t,:])
+
   ##############################################################################
   # TODO: Implement the backward pass for word embeddings.                     #
   #                                                                            #
