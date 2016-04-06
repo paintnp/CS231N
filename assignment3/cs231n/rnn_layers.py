@@ -185,19 +185,6 @@ def word_embedding_forward(x, W):
   out = np.zeros((N,T,D))
   x_flattened = x.flatten()
   out = W[x_flattened, :].reshape(x.shape[0], x.shape[1], W.shape[1])
-
-  # for n in range(0,N):
-  #     for t in range(0,T):
-  #         out[n,t,:] = W[x[n,t]]
-  ##############################################################################
-  # TODO: Implement the forward pass for word embeddings.                      #
-  #                                                                            #
-  # HINT: This should be very simple.                                          #
-  ##############################################################################
-  pass
-  ##############################################################################
-  #                               END OF YOUR CODE                             #
-  ##############################################################################
   cache = x,W
   return out, cache
 
