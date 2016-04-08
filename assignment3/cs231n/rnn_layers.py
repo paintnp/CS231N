@@ -281,7 +281,7 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
-  
+  cache =  next_c,o,prev_c,f,g,i,ag,ao,af,ai,N,H,Wx,x,Wh,prev_h
   return next_h, next_c, cache
 
 
@@ -301,8 +301,46 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
   - dWx: Gradient of input-to-hidden weights, of shape (D, 4H)
   - dWh: Gradient of hidden-to-hidden weights, of shape (H, 4H)
   - db: Gradient of biases, of shape (4H,)
+
+  a = np.dot(x, Wx) + np.dot(prev_h, Wh) + b # (N, 4H)
+  dprev_h = np.dot(Wh.T, da)
+  dWh = np.dot(prev_h.T, da)
+  db = np.sum(da, axis=0)
+  ai = a[:, :H]
+  af = a[:, H:2*H]
+  ao = a[:, 2*H:3*H]
+  ag = a[:, 3*H:4*H]
+  i = sigmoid(ai)
+  f = sigmoid(af)
+  o = sigmoid(ao)
+  g = np.tanh(ag)
+  next_c = f*prev_c + i*g
+  next_h = o*np.tanh(next_c)
   """
   dx, dh, dc, dWx, dWh, db = None, None, None, None, None, None
+
+
+  next_c,o,prev_c,f,g,i,ag,ao,af,ai,N,H,Wx,x,Wh,prev_h = cache
+  da = np.zeros((N,4*H))
+  do = np.tanh(next_c) * dnext_h
+  dnext_c += o * (1-np.tanh(next_c)**2)*dnext_h
+  df = prev_c * dnext_c
+  dprev_c = f*dnext_c
+  di = g*dnext_c
+  dg = i*dnext_c
+  dag = (1-np.tanh(ag)**2)*dg
+  dao = o*(1-o)*do
+  daf = f*(1-f)*df
+  dai = i*(1-i)*di
+  da[:,3*H:4*H] = dag
+  da[:,2*H:3*H] = dao
+  da[:,H:2*H] = daf
+  da[:,:H] = dai
+  dx = np.dot(da, Wx.T)
+  dWx = np.dot(x.T, da)
+  dprev_h = np.dot(Wh, da.T).T
+  dWh = np.dot(prev_h.T, da)
+  db = np.sum(da, axis=0)
   #############################################################################
   # TODO: Implement the backward pass for a single timestep of an LSTM.       #
   #                                                                           #
