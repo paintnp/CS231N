@@ -206,14 +206,21 @@ class CaptioningRNN(object):
     h0 = np.dot(features, W_proj) + b_proj
     previous_word = self._start * np.ones(N, dtype = np.int32)
     previous_h = h0
+    N,H = h0.shape
+    previous_c = np.zeros((N,H))
     for t in range(0,max_length):
       word_vec = W_embed[previous_word, :]
-      next_h, cache = rnn_step_forward(word_vec, previous_h, Wx, Wh, b)
+      if self.cell_type == "rnn":
+        next_h, cache = rnn_step_forward(word_vec, previous_h, Wx, Wh, b)
+      else:
+        next_h, next_c, cache = lstm_step_forward(word_vec, previous_h, previous_c, Wx, Wh, b)
       scores = np.dot(next_h, W_vocab) + b_vocab
       next_word = np.argmax(scores, axis = 1)
       captions[:, t] = next_word
       previous_word = next_word
       previous_h = next_h
+      if self.cell_type == "lstm":
+        previous_c = next_c
 
     ###########################################################################
     # TODO: Implement test-time sampling for the model. You will need to      #
