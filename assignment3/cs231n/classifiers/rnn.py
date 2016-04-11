@@ -143,11 +143,17 @@ class CaptioningRNN(object):
     captions_in_transformed, word_embedding_cache = word_embedding_forward(captions_in, W_embed)
     # captions_in_flattened = captions_in.flatten()
     # captions_in_transformed = W_embed[captions_in_flattened, :].reshape(captions_in.shape[0], captions_in.shape[1], W_embed.shape[1]) # check
-    h, hidden_cache = rnn_forward(captions_in_transformed, initial_hidden_state, Wx, Wh, b)
+    if self.cell_type == 'rnn':
+      h, hidden_cache = rnn_forward(captions_in_transformed, initial_hidden_state, Wx, Wh, b)
+    else:
+      h, hidden_cache = lstm_forward(captions_in_transformed, initial_hidden_state, Wx, Wh, b)
     vocab_out, vocab_cache = temporal_affine_forward(h, W_vocab, b_vocab)
     loss, dvocab_out = temporal_softmax_loss(vocab_out, captions_out, mask, verbose=False)
     dh, dW_vocab, db_vocab = temporal_affine_backward(dvocab_out, vocab_cache)
-    dcaptions_in_transformed, dinitial_hidden_state, dWx, dWh, db = rnn_backward(dh, hidden_cache)
+    if self.cell_type == "rnn":
+      dcaptions_in_transformed, dinitial_hidden_state, dWx, dWh, db = rnn_backward(dh, hidden_cache)
+    else:
+      dcaptions_in_transformed, dinitial_hidden_state, dWx, dWh, db = lstm_backward(dh, hidden_cache)
     dW_embed = word_embedding_backward(dcaptions_in_transformed, word_embedding_cache)
     dW_proj = np.dot(dinitial_hidden_state.T, features).T
     db_proj = np.sum(dinitial_hidden_state, axis=0)
