@@ -194,6 +194,32 @@ class CaptioningRNN(object):
       where each element is an integer in the range [0, V). The first element
       of captions should be the first sampled word, not the <START> token.
     """
+
+        ###########################################################################
+    # TODO: Implement test-time sampling for the model. You will need to      #
+    # initialize the hidden state of the RNN by applying the learned affine   #
+    # transform to the input image features. The first word that you feed to  #
+    # the RNN should be the <START> token; its value is stored in the         #
+    # variable self._start. At each timestep you will need to do to:          #
+    # (1) Embed the previous word using the learned word embeddings           #
+    # (2) Make an RNN step using the previous hidden state and the embedded   #
+    #     current word to get the next hidden state.                          #
+    # (3) Apply the learned affine transformation to the next hidden state to #
+    #     get scores for all words in the vocabulary                          #
+    # (4) Select the word with the highest score as the next word, writing it #
+    #     to the appropriate slot in the captions variable                    #
+    #                                                                         #
+    # For simplicity, you do not need to stop generating after an <END> token #
+    # is sampled, but you can if you want to.                                 #
+    #                                                                         #
+    # HINT: You will not be able to use the rnn_forward or lstm_forward       #
+    # functions; you'll need to call rnn_step_forward or lstm_step_forward in #
+    # a loop.                                                                 #
+    ###########################################################################
+    pass
+    ############################################################################
+    #                             END OF YOUR CODE                             #
+    ############################################################################
     N = features.shape[0]
     captions = self._null * np.ones((N, max_length), dtype=np.int32)
 
@@ -222,29 +248,5 @@ class CaptioningRNN(object):
       if self.cell_type == "lstm":
         previous_c = next_c
 
-    ###########################################################################
-    # TODO: Implement test-time sampling for the model. You will need to      #
-    # initialize the hidden state of the RNN by applying the learned affine   #
-    # transform to the input image features. The first word that you feed to  #
-    # the RNN should be the <START> token; its value is stored in the         #
-    # variable self._start. At each timestep you will need to do to:          #
-    # (1) Embed the previous word using the learned word embeddings           #
-    # (2) Make an RNN step using the previous hidden state and the embedded   #
-    #     current word to get the next hidden state.                          #
-    # (3) Apply the learned affine transformation to the next hidden state to #
-    #     get scores for all words in the vocabulary                          #
-    # (4) Select the word with the highest score as the next word, writing it #
-    #     to the appropriate slot in the captions variable                    #
-    #                                                                         #
-    # For simplicity, you do not need to stop generating after an <END> token #
-    # is sampled, but you can if you want to.                                 #
-    #                                                                         #
-    # HINT: You will not be able to use the rnn_forward or lstm_forward       #
-    # functions; you'll need to call rnn_step_forward or lstm_step_forward in #
-    # a loop.                                                                 #
-    ###########################################################################
-    pass
-    ############################################################################
-    #                             END OF YOUR CODE                             #
-    ############################################################################
+
     return captions
